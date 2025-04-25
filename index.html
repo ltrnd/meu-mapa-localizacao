@@ -15,7 +15,7 @@
   <div id="map"></div>
 
   <script>
-    const apiUrl = "https://tasker-localizacao-api.onrender.com/localizacao";
+    const apiUrl = "https://Environments-trnd.onrender.com/localizacao";
 
     const map = L.map('map').setView([0, 0], 2); // visão inicial
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -43,7 +43,7 @@
       }
     }
 
-    setInterval(atualizarMapa, 2000); // atualiza a cada 5 segundos
+    setInterval(atualizarMapa, 1000); // atualiza a cada 1 segundo
   </script>
 </body>
 </html>
