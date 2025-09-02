@@ -1,49 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rastreamento em Tempo Real</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <meta charset="UTF-8">
+  <title>Minha Localização</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
-    #map { height: 100vh; width: 100%; }
-    body { margin: 0; font-family: sans-serif; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .loading {
+      color: #888;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
+  <h1>📍 Localização Atual</h1>
+  <div id="localizacao" class="card loading">Carregando localização...</div>
   <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const apiUrl = "https://Environments-trnd.onrender.com/localizacao";
+    let map, marker;
 
-    const map = L.map('map').setView([0, 0], 2); // visão inicial
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    let marker = null;
-
-    async function atualizarMapa() {
+    async function carregarLocalizacao() {
+      const el = document.getElementById("localizacao");
       try {
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        const resp = await fetch("https://administratorpanel.onrender.com/localizacao");
+        const data = await resp.json();
 
-        if (data.latitude && data.longitude) {
-          const lat = parseFloat(data.latitude);
-          const lng = parseFloat(data.longitude);
+        const latitude = parseFloat(data.latitude);
+        const longitude = parseFloat(data.longitude);
+        const dataHora = data.timestamp
+          ? new Date(parseInt(data.timestamp) * 1000).toLocaleString("pt-BR")
+          : "Sem data";
 
-          if (!marker) {
-            marker = L.marker([lat, lng]).addTo(map);
-          } else {
-            marker.setLatLng([lat, lng]);
-          }
+        el.classList.remove("loading");
+        el.innerHTML = `
+          <b>Latitude:</b> ${latitude} <br>
+          <b>Longitude:</b> ${longitude} <br>
+          <b>Horário:</b> ${dataHora}
+        `;
 
-          map.setView([lat, lng], 15);
+        // Inicializa mapa se ainda não foi criado
+        if (!map) {
+          map = L.map('map').setView([latitude, longitude], 15);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+          }).addTo(map);
+
+          marker = L.marker([latitude, longitude]).addTo(map);
+        } else {
+          // Atualiza posição do marcador
+          marker.setLatLng([latitude, longitude]);
+          map.setView([latitude, longitude], 15);
         }
-      } catch (err) {
-        console.error("Erro ao buscar localização:", err);
+
+      } catch (e) {
+        el.innerText = "⚠️ Erro ao carregar localização!";
       }
     }
 
-    setInterval(atualizarMapa, 1000); // atualiza a cada 1 segundo
+    carregarLocalizacao();
+    // Atualiza a cada 15 segundos
+    setInterval(carregarLocalizacao, 15000);
   </script>
 </body>
 </html>
