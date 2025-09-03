@@ -5,41 +5,44 @@
   <title>Minha Localização</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      color: #333;
-      text-align: center;
-      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
     h1 {
+      margin: 10px 0;
       color: #2c3e50;
+      text-align: center;
     }
-    .card {
+    #localizacao {
       background: white;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      display: inline-block;
-      margin-bottom: 20px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      margin-bottom: 10px;
+      z-index: 1000;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
     }
     #map {
-      height: 400px;
+      height: 100%;
       width: 100%;
-      max-width: 600px;
-      margin: 0 auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .loading {
-      color: #888;
-      font-style: italic;
     }
   </style>
 </head>
 <body>
-  <h1>📍 Localização Atual</h1>
-  <div id="localizacao" class="card loading">Carregando localização...</div>
+  <h1>📍 Minha Localização</h1>
+  <div id="localizacao" class="loading">Carregando localização...</div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -65,10 +68,8 @@
           <b>Horário:</b> ${dataHora}
         `;
 
-        // Inicializa mapa se ainda não foi criado
         if (!map) {
           map = L.map('map').setView([latitude, longitude], 15);
-
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
@@ -76,7 +77,6 @@
 
           marker = L.marker([latitude, longitude]).addTo(map);
         } else {
-          // Atualiza posição do marcador
           marker.setLatLng([latitude, longitude]);
           map.setView([latitude, longitude], 15);
         }
@@ -87,7 +87,6 @@
     }
 
     carregarLocalizacao();
-    // Atualiza a cada 15 segundos
     setInterval(carregarLocalizacao, 15000);
   </script>
 </body>
